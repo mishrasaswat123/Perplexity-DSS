@@ -1,64 +1,121 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Advisor Brain DSS</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f6f7fb;
+      color: #111;
+    }
+    h1 {
+      margin-bottom: 8px;
+    }
+    p {
+      margin-top: 0;
+      color: #555;
+    }
+    form {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      display: grid;
+      gap: 12px;
+    }
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 14px;
+    }
+    input, select, button, textarea {
+      font: inherit;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background: #1f6feb;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover {
+      background: #1959bd;
+    }
+    pre {
+      background: #111827;
+      color: #e5e7eb;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-  <main class="container">
-    <header class="hero">
-      <h1>Advisor Brain DSS</h1>
-      <p>Manual scenario engine for portfolio decision support.</p>
-    </header>
+  <h1>Advisor Brain DSS</h1>
+  <p>Manual decision-support MVP.</p>
 
-    <section class="card">
-      <h2>Input</h2>
-      <form id="dssForm">
-        <label>
-          Interest Rates
-          <input name="interestRates" type="number" step="0.1" value="6.5" />
-        </label>
+  <form id="dssForm">
+    <div class="grid">
+      <label>
+        Interest Rates
+        <input type="number" name="interestRates" step="0.1" value="6.5" />
+      </label>
 
-        <label>
-          Liquidity
-          <select name="liquidity">
-            <option value="tight">Tight</option>
-            <option value="neutral" selected>Neutral</option>
-            <option value="easy">Easy</option>
-          </select>
-        </label>
+      <label>
+        Liquidity
+        <select name="liquidity">
+          <option value="neutral" selected>neutral</option>
+          <option value="easy">easy</option>
+          <option value="tight">tight</option>
+        </select>
+      </label>
 
-        <label>
-          Crude Price
-          <input name="crude" type="number" step="0.1" value="80" />
-        </label>
+      <label>
+        Crude
+        <input type="number" name="crude" step="1" value="80" />
+      </label>
 
-        <label>
-          FII Flow
-          <input name="fiiFlow" type="number" step="0.1" value="10" />
-        </label>
+      <label>
+        FII Flow
+        <input type="number" name="fiiFlow" step="1" value="10" />
+      </label>
 
-        <label>
-          Equity %
-          <input name="equity" type="number" step="1" value="60" />
-        </label>
+      <label>
+        Equity
+        <input type="number" name="equity" step="1" value="60" />
+      </label>
 
-        <label>
-          Debt %
-          <input name="debt" type="number" step="1" value="40" />
-        </label>
+      <label>
+        Debt
+        <input type="number" name="debt" step="1" value="40" />
+      </label>
+    </div>
 
-        <button type="submit">Generate Recommendation</button>
-      </form>
-    </section>
+    <button type="submit">Recommend</button>
+  </form>
 
-    <section class="card" id="outputCard">
-      <h2>Output</h2>
-      <pre id="output">Submit the form to see the recommendation.</pre>
-    </section>
-  </main>
+  <h2>Output</h2>
+  <pre id="output">Waiting for input...</pre>
 
   <script src="./app.js"></script>
 </body>
