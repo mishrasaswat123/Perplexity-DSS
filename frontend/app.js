@@ -1,7 +1,7 @@
 const form = document.getElementById("dssForm");
 const output = document.getElementById("output");
 
-const API_BASE = window.API_BASE || "http://localhost:3000";
+const API_BASE = "https://perplexity-dss.onrender.com";
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
