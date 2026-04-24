@@ -1,6 +1,8 @@
 const form = document.getElementById("dssForm");
 const output = document.getElementById("output");
 
+const API_BASE = window.API_BASE || "http://localhost:3000";
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -21,7 +23,7 @@ form.addEventListener("submit", async (e) => {
   output.textContent = "Generating...";
 
   try {
-    const res = await fetch("http://localhost:3000/api/recommend", {
+    const res = await fetch(`${API_BASE}/api/recommend`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
