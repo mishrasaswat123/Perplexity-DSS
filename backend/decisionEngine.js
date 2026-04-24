@@ -1,38 +1,90 @@
-export function generateRecommendation(input) {
-  const macro = input?.macro || {};
-  const portfolio = input?.currentPortfolio || {};
+function clampPercent(value) {
+  return Math.max(0, Math.min(100, Number(value) || 0));
+}
+
+function normalizePortfolio(portfolio = {}) {
+  const equity = clampPercent(portfolio.equity);
+  const debt = clampPercent(portfolio.debt);
+  const total = equity + debt || 100;
+  return {
+    equity: Number(((equity / total) * 100).toFixed(1)),
+    debt: Number(((debt / total) * 100).toFixed(1))
+  };
+}
+
+export function generateRecommendation(input = {}) {
+  const macro = input.macro || {};
+  const currentPortfolio = normalizePortfolio(input.currentPortfolio || {});
 
   const rate = Number(macro.interestRates ?? 0);
   const liquidity = String(macro.liquidity ?? "neutral").toLowerCase();
   const crude = Number(macro.crude ?? 0);
   const fiiFlow = Number(macro.fiiFlow ?? 0);
 
-  const score =
-    (rate > 7 ? -2 : rate > 6 ? -1 : 1) +
-    (liquidity === "tight" ? -2 : liquidity === "easy" ? 2 : 0) +
-    (crude > 85 ? -1 : crude < 75 ? 1 : 0) +
-    (fiiFlow > 0 ? 1 : fiiFlow < 0 ? -1 : 0);
+  let score = 0;
+  if (rate <= 6) score += 2;
+  else if (rate <= 7) score += 1;
+  else score -= 2;
+
+  if (liquidity === "easy") score += 2;
+  else if (liquidity === "neutral") score += 0;
+  else if (liquidity === "tight") score -= 2;
+
+  if (crude < 75) score += 1;
+  else if (crude > 85) score -= 1;
+
+  if (fiiFlow > 0) score += 1;
+  else if (fiiFlow < 0) score -= 1;
 
   let confidence = "medium";
   let horizon = "medium-term";
-  let insight = "Macro conditions are mixed.";
+  let insight = "Macro conditions are balanced.";
   let rebalance = [];
   let reasons = [];
+  let targetPortfolio = { ...currentPortfolio };
 
-  if (score >= 3) {
+  if (score >= 4) {
     confidence = "high";
-    insight = "Risk assets look supported.";
-    rebalance = [{ sector: "equity", action: "overweight", by: "5%" }];
-    reasons = ["Rates are supportive", "Liquidity is constructive", "Macro score is positive"];
+    horizon = "6-12 months";
+    insight = "Risk assets look supported, so equity can be modestly increased.";
+    targetPortfolio = { equity: 65, debt: 35 };
+    rebalance = [
+      { asset: "equity", action: "overweight", from: currentPortfolio.equity, to: 65, delta: "+5" },
+      { asset: "debt", action: "underweight", from: currentPortfolio.debt, to: 35, delta: "-5" }
+    ];
+    reasons = [
+      "Rates are supportive",
+      "Liquidity is constructive",
+      "Macro score is strongly positive"
+    ];
   } else if (score <= -2) {
     confidence = "high";
-    insight = "Defensive positioning is more attractive.";
-    rebalance = [{ sector: "equity", action: "underweight", by: "5%" }];
-    reasons = ["Rates or liquidity are unfavorable", "Macro score is negative", "Defensive stance preferred"];
+    horizon = "3-6 months";
+    insight = "Defensive positioning is more attractive, so equity should be reduced.";
+    targetPortfolio = { equity: 50, debt: 50 };
+    rebalance = [
+      { asset: "equity", action: "underweight", from: currentPortfolio.equity, to: 50, delta: "-10" },
+      { asset: "debt", action: "overweight", from: currentPortfolio.debt, to: 50, delta: "+10" }
+    ];
+    reasons = [
+      "Rates or liquidity are unfavorable",
+      "Macro score is negative",
+      "Capital preservation is preferred"
+    ];
   } else {
     confidence = "medium";
-    rebalance = [{ sector: "equity", action: "neutral", by: "0%" }];
-    reasons = ["Signals are balanced", "No strong portfolio shift", "Wait for confirmation"];
+    horizon = "3-6 months";
+    insight = "Signals are mixed, so maintain a balanced allocation.";
+    targetPortfolio = { ...currentPortfolio };
+    rebalance = [
+      { asset: "equity", action: "neutral", from: currentPortfolio.equity, to: currentPortfolio.equity, delta: "0" },
+      { asset: "debt", action: "neutral", from: currentPortfolio.debt, to: currentPortfolio.debt, delta: "0" }
+    ];
+    reasons = [
+      "Signals are balanced",
+      "No strong macro conviction",
+      "Wait for clearer confirmation"
+    ];
   }
 
   return {
@@ -40,8 +92,8 @@ export function generateRecommendation(input) {
     rebalance,
     confidence,
     horizon,
-    currentPortfolio: portfolio,
-    targetPortfolio: portfolio,
+    currentPortfolio,
+    targetPortfolio,
     reasons
   };
 }
