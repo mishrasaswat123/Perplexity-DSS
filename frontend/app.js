@@ -1,4 +1,3 @@
-
 const form = document.getElementById("dssForm");
 const output = document.getElementById("output");
 
